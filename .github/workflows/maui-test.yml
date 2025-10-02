@@ -15,25 +15,92 @@ on:
       - feature/**
 
 jobs:
-  test:
+  # Android & Windows builds kunnen op Linux
+  build-linux:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [android, windows]
     steps:
-      - name: Haal de repository op
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Installeer .NET SDK
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
 
-      - name: Installeer MAUI workloads
-        run: dotnet workload install maui-android
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
-      - name: Herstel afhankelijkheden
+      - name: Install MAUI workloads
+        run: |
+          if [ "${{ matrix.platform }}" == "android" ]; then
+            dotnet workload install maui-android
+          elif [ "${{ matrix.platform }}" == "windows" ]; then
+            dotnet workload install maui-windows
+          fi
+
+      - name: Restore dependencies
         run: dotnet restore
 
-      - name: Bouw de applicatie
-        run: dotnet build --configuration Release --no-restore
+      - name: Build the application
+        run: |
+          if [ "${{ matrix.platform }}" == "android" ]; then
+            dotnet build -f net8.0-android -c Release --no-restore
+          elif [ "${{ matrix.platform }}" == "windows" ]; then
+            dotnet build -f net8.0-windows10.0.22621.0 -c Release --no-restore
+          fi
 
-      - name: Voer unit tests uit
-        run: dotnet test --configuration Release --no-restore --no-build --verbosity normal
+      - name: Run unit tests
+        run: dotnet test -c Release --no-restore --no-build --verbosity normal
+
+  # iOS & Mac Catalyst builds moeten op macOS
+  build-macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        platform: [ios, maccatalyst]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Install MAUI workloads
+        run: |
+          if [ "${{ matrix.platform }}" == "ios" ]; then
+            dotnet workload install maui-ios
+          elif [ "${{ matrix.platform }}" == "maccatalyst" ]; then
+            dotnet workload install maui-maccatalyst
+          fi
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build the application
+        run: |
+          if [ "${{ matrix.platform }}" == "ios" ]; then
+            dotnet build -f net8.0-ios -c Release --no-restore
+          elif [ "${{ matrix.platform }}" == "maccatalyst" ]; then
+            dotnet build -f net8.0-maccatalyst -c Release --no-restore
+          fi
+
+      - name: Run unit tests
+        run: dotnet test -c Release --no-restore --no-build --verbosity normal
