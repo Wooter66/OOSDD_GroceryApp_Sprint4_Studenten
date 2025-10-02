@@ -24,7 +24,19 @@ namespace Grocery.App.ViewModels
 
         partial void OnSelectedProductChanged(Product? oldValue, Product newValue)
         {
-            //Zorg dat de lijst BoughtProductsList met de gegevens die passen bij het geselecteerde product. 
+            if (newValue != null)
+            {
+                BoughtProductsList.Clear();
+                var boughtProducts = _boughtProductsService.GetByProductId(newValue.Id);
+                foreach (var item in boughtProducts)
+                {
+                    BoughtProductsList.Add(item as BoughtProducts);
+                }
+            }
+            else
+            {
+                BoughtProductsList.Clear();
+            }        
         }
 
         [RelayCommand]
