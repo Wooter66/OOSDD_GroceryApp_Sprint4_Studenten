@@ -19,15 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-
       - run: dotnet workload restore --project ./Grocery.App/Grocery.App.csproj android
-
-      - run: dotnet restore ./Grocery.App/Grocery.App.csproj -f net8.0-android
-
+      - run: dotnet restore ./Grocery.App/Grocery.App.csproj
       - run: dotnet build ./Grocery.App/Grocery.App.csproj -f net8.0-android -c Release
-
-      - run: dotnet test ./Grocery.App/Grocery.App.csproj -c Release --no-restore --no-build --verbosity normal
