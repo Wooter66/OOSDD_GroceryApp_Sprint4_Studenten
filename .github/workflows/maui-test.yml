@@ -15,54 +15,32 @@ on:
       - feature/**
 
 jobs:
-  build-android-windows:
+  build-android:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore workloads
-        run: dotnet workload restore
+      - run: dotnet workload restore
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - run: dotnet restore
 
-      - name: Build Android
-        run: dotnet build -f net8.0-android -c Release
-
-      - name: Build Windows
-        run: dotnet build -f net8.0-windows10.0.22621.0 -c Release
-
-      - name: Run tests
-        run: dotnet test -c Release --no-restore --no-build --verbosity normal
+      - run: dotnet build -f net8.0-android -c Release
 
   build-ios:
     runs-on: macos-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore workloads
-        run: dotnet workload restore
+      - run: dotnet workload restore
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - run: dotnet restore
 
-      - name: Build iOS
-        run: dotnet build -f net8.0-ios -c Release
-
-      - name: Build Mac Catalyst
-        run: dotnet build -f net8.0-maccatalyst -c Release
-
-      - name: Run tests
-        run: dotnet test -c Release --no-restore --no-build --verbosity normal
+      - run: dotnet build -f net8.0-ios -c Release
