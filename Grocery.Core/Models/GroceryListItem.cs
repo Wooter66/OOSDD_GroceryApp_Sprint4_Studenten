@@ -13,5 +13,6 @@
         }
 
         public Product Product { get; set; } = new(0, "None", 0);
+        public bool IsBought { get; internal set; }
     }
 }

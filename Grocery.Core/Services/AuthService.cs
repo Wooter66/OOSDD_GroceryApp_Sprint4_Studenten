@@ -6,7 +6,8 @@ namespace Grocery.Core.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly IClientService _clientService;
+        public IClientService _clientService;
+        public Client? CurrentClient { get; set; }
         public AuthService(IClientService clientService)
         {
             _clientService = clientService;
@@ -15,8 +16,16 @@ namespace Grocery.Core.Services
         {
             Client? client = _clientService.Get(email);
             if (client == null) return null;
-            if (PasswordHelper.VerifyPassword(password, client.Password)) return client;
+            if (PasswordHelper.VerifyPassword(password, client.Password))
+            {
+                SetCurrentClient(client);
+                return client;
+                }
             return null;
+        }
+        public void SetCurrentClient(Client? client)
+        {
+            CurrentClient = client;
         }
     }
 }
