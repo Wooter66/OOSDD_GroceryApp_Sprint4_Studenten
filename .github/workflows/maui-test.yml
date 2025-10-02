@@ -1,18 +1,10 @@
-name: MAUI Workflow
+name: MAUI Android Workflow
 
 on:
   push:
-    branches:
-      - main
-      - develop
-      - release/**
-      - feature/**
+    branches: [main, develop]
   pull_request:
-    branches:
-      - main
-      - develop
-      - release/**
-      - feature/**
+    branches: [main, develop]
 
 jobs:
   build-android:
@@ -28,4 +20,3 @@ jobs:
       - run: dotnet restore
       - run: dotnet build -f net8.0-android -c Release
       - run: dotnet test -c Release --no-restore --no-build --verbosity normal
-
