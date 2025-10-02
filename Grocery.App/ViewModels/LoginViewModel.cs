@@ -12,7 +12,7 @@ namespace Grocery.App.ViewModels
         private readonly GlobalViewModel _global;
 
         [ObservableProperty]
-        private string email = "user3@mail.com";
+        public string email = "user3@mail.com";
 
         [ObservableProperty]
         private string password = "user3";

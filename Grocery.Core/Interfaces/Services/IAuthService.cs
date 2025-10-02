@@ -6,5 +6,8 @@ namespace Grocery.Core.Interfaces.Services
     public interface IAuthService
     {
         Client? Login(string email, string password);
+
+        Client? CurrentClient { get; set; }
+        void SetCurrentClient(Client? client);
     }
 }
