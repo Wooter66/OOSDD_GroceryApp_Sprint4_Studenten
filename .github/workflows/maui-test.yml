@@ -15,12 +15,8 @@ on:
       - feature/**
 
 jobs:
-  # Android & Windows builds kunnen op Linux
-  build-linux:
+  build-android-windows:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platform: [android, windows]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,42 +26,23 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Cache NuGet packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
-
-      - name: Install MAUI workloads
-        run: |
-          if [ "${{ matrix.platform }}" == "android" ]; then
-            dotnet workload install maui-android
-          elif [ "${{ matrix.platform }}" == "windows" ]; then
-            dotnet workload install maui-windows
-          fi
+      - name: Restore workloads
+        run: dotnet workload restore
 
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build the application
-        run: |
-          if [ "${{ matrix.platform }}" == "android" ]; then
-            dotnet build -f net8.0-android -c Release --no-restore
-          elif [ "${{ matrix.platform }}" == "windows" ]; then
-            dotnet build -f net8.0-windows10.0.22621.0 -c Release --no-restore
-          fi
+      - name: Build Android
+        run: dotnet build -f net8.0-android -c Release
 
-      - name: Run unit tests
+      - name: Build Windows
+        run: dotnet build -f net8.0-windows10.0.22621.0 -c Release
+
+      - name: Run tests
         run: dotnet test -c Release --no-restore --no-build --verbosity normal
 
-  # iOS & Mac Catalyst builds moeten op macOS
-  build-macos:
+  build-ios:
     runs-on: macos-latest
-    strategy:
-      matrix:
-        platform: [ios, maccatalyst]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -75,32 +52,17 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Cache NuGet packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
-
-      - name: Install MAUI workloads
-        run: |
-          if [ "${{ matrix.platform }}" == "ios" ]; then
-            dotnet workload install maui-ios
-          elif [ "${{ matrix.platform }}" == "maccatalyst" ]; then
-            dotnet workload install maui-maccatalyst
-          fi
+      - name: Restore workloads
+        run: dotnet workload restore
 
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build the application
-        run: |
-          if [ "${{ matrix.platform }}" == "ios" ]; then
-            dotnet build -f net8.0-ios -c Release --no-restore
-          elif [ "${{ matrix.platform }}" == "maccatalyst" ]; then
-            dotnet build -f net8.0-maccatalyst -c Release --no-restore
-          fi
+      - name: Build iOS
+        run: dotnet build -f net8.0-ios -c Release
 
-      - name: Run unit tests
+      - name: Build Mac Catalyst
+        run: dotnet build -f net8.0-maccatalyst -c Release
+
+      - name: Run tests
         run: dotnet test -c Release --no-restore --no-build --verbosity normal
